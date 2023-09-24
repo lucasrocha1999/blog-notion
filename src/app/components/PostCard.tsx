@@ -1,19 +1,29 @@
+import { randomUUID } from "crypto";
 import Link from "next/link";
 
-export const PostCard: React.FC = () => {
+interface Post {
+  date: string;
+  description: string;
+  id: string;
+  slug: string;
+  tags: string[];
+  title: string;
+}
+
+export const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   return (
-    <article className="flex flex-col justify-around bg-[#F4F8FD] dark:bg-[#141920] h-80 w-full max-w-[360px] rounded-lg p-3">
-      <header className="flex flex-col gap-2">
-        <span>NodeJS</span>
-        <strong className="text-xl font-semibold">
-          Boas práticas para devs em início de carreira
-        </strong>
-      </header>
-      <footer>
-        <span className="text-sm">há um ano</span>
-        <span className="text-sm"> • </span>
-        <span className="text-sm">1 min de leitura</span>
-      </footer>
-    </article>
+    <Link href={`/posts/${post.slug}`}>
+      <article className="flex flex-col justify-around bg-[#F4F8FD] dark:bg-[#141920] h-80 w-full max-w-[360px] rounded-lg p-3">
+        <header className="flex flex-col gap-2">
+          <span>{post.tags.join(" | ")}</span>
+          <strong className="text-xl font-semibold">{post.title}</strong>
+        </header>
+        <footer>
+          <span className="text-sm">{post.date}</span>
+          <span className="text-sm"> • </span>
+          <span className="text-sm">1 min de leitura</span>
+        </footer>
+      </article>
+    </Link>
   );
 };

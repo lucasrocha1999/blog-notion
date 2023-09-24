@@ -1,7 +1,10 @@
+import Link from "next/link";
 import { PostCard } from "./components/PostCard";
+import { getAllPublished } from "./lib/notion";
 
-export default function Home() {
-  const posts = [1, 2, 3, 4, 5];
+export default async function Home() {
+  const posts = await getAllPublished();
+
   return (
     <>
       <section className="flex justify-center bg-gradient-to-r from-[#3d255e] to-[#100b15]">
@@ -16,8 +19,8 @@ export default function Home() {
         </div>
       </section>
       <section className="grid grid-cols-3 gap-6 max-w-[1200px] mx-auto py-14 px-4">
-        {posts.map((post) => (
-          <PostCard key={post} />
+        {posts.map((post, index) => (
+          <PostCard post={post} key={index} />
         ))}
       </section>
     </>

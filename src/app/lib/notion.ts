@@ -1,25 +1,13 @@
+"use server";
+
 import { Client } from "@notionhq/client";
-import { NotionAPI } from "notion-client";
+import { NotionDatabaseResponse } from "./types";
+import { NotionToMarkdown } from "notion-to-md";
 
-export const notion = new Client({
-  auth: process.env.NOTION_TOKEN,
-});
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-const notionApi = new NotionAPI({
-  authToken: process.env.NOTION_TOKEN,
-});
-
-interface Posts {
-  date: string;
-  description: string;
-  id: string;
-  slug: string;
-  tags: string[];
-  title: string;
-}
-
-export const getAllPublished = async () => {
-  const posts = await notion.databases.query({
+export async function getPosts() {
+  const response = await notion.databases.query({
     database_id: process.env.DATABASE_ID!,
     filter: {
       property: "Published",
@@ -34,27 +22,53 @@ export const getAllPublished = async () => {
       },
     ],
   });
-  const allPosts = posts.results;
-  return allPosts.map((post) => {
-    return getPageMetaData(post);
+
+  const typedResponse = response as unknown as NotionDatabaseResponse;
+
+  return typedResponse.results.map((post) => {
+    return {
+      id: post.id,
+      title: post.properties.Title.title[0].plain_text,
+      description: post.properties.Description.rich_text[0].plain_text,
+      slug: post.properties.Slug.rich_text[0].plain_text,
+      tags: post.properties.Tags.multi_select.map((tag) => tag.name),
+      createdAt: getToday(post.properties.Date.last_edited_time),
+    };
   });
-};
-const getPageMetaData = (post: any): Posts => {
-  const getTags = (tags: any[]) => {
-    const allTags = tags.map((tag) => {
-      return tag.name;
-    });
-    return allTags;
-  };
+}
+
+export async function getPost(slug: string) {
+  const response = await notion.databases.query({
+    database_id: process.env.DATABASE_ID!,
+    filter: {
+      property: "Slug",
+      formula: {
+        string: {
+          equals: slug,
+        },
+      },
+    },
+  });
+
+  const pageId = response.results[0].id;
+
+  const n2m = new NotionToMarkdown({ notionClient: notion });
+
+  const mdblocks = await n2m.pageToMarkdown(pageId);
+  const mdString = n2m.toMarkdownString(mdblocks);
+
+  const typedResponse = response as unknown as NotionDatabaseResponse;
+
   return {
-    id: post.id,
-    title: post.properties.Name.title[0].plain_text,
-    tags: getTags(post.properties.Tags.multi_select),
-    description: post.properties.Description.rich_text[0].plain_text,
-    date: getToday(post.properties.Date.last_edited_time),
-    slug: post.properties.Slug.rich_text[0].plain_text,
+    title: typedResponse.results[0].properties.Title.title[0].plain_text,
+    description:
+      typedResponse.results[0].properties.Description.rich_text[0].plain_text,
+    tags: typedResponse.results[0].properties.Tags.multi_select.map(
+      (tag) => tag.name
+    ),
+    content: mdString.parent,
   };
-};
+}
 
 function getToday(datestring: string) {
   const months = [
@@ -81,28 +95,3 @@ function getToday(datestring: string) {
   let today = `${month} ${day}, ${year}`;
   return today;
 }
-
-import { NotionToMarkdown } from "notion-to-md";
-const n2m = new NotionToMarkdown({ notionClient: notion });
-
-export const getSingleBlogPostBySlug = async (slug: string) => {
-  const response = await notion.databases.query({
-    database_id: process.env.DATABASE_ID!,
-    filter: {
-      property: "Slug",
-      formula: {
-        string: {
-          equals: slug,
-        },
-      },
-    },
-  });
-  const page = response.results[0];
-  const metadata = getPageMetaData(page);
-  const mdblocks = await n2m.pageToMarkdown(page.id);
-  const mdString = n2m.toMarkdownString(mdblocks);
-  return {
-    metadata,
-    markdown: mdString,
-  };
-};

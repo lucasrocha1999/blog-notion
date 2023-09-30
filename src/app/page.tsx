@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { PostCard } from "./components/PostCard";
-import { getAllPublished } from "./lib/notion";
+import { getPosts } from "./lib/notion";
 
 export default async function Home() {
-  const posts = await getAllPublished();
+  const posts = await getPosts();
 
   return (
     <>

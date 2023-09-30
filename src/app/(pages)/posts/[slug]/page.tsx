@@ -1,5 +1,5 @@
 import ReactMarkdown from "react-markdown";
-import { getSingleBlogPostBySlug } from "../../../lib/notion";
+import { getPost } from "../../../lib/notion";
 
 interface PostProps {
   params: {
@@ -8,18 +8,18 @@ interface PostProps {
 }
 
 const Post = async ({ params }: PostProps) => {
-  const post = await getSingleBlogPostBySlug(params.slug);
+  const post = await getPost(params.slug);
   return (
     <section className="max-w-[1200px] mx-auto mt-8">
       <h2 className="text-4xl font-black text-zinc-800 dark:text-white mt-1">
-        {post.metadata.title}
+        {post.title}
       </h2>
       <span className="text-zinc-600 dark:text-zinc-200 mt-2">
-        {post.metadata.date}
+        {post.description}
       </span>
-      <p className="text-xs">{post.metadata.tags.join(", ")}</p>
+      <p className="text-xs">{post.tags.join(", ")}</p>
 
-      <ReactMarkdown className="mt-4">{post.markdown.parent}</ReactMarkdown>
+      <ReactMarkdown className="mt-4">{post.content}</ReactMarkdown>
     </section>
   );
 };

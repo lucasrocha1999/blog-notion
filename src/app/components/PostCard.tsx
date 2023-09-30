@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import Link from "next/link";
 
 interface Post {
-  date: string;
+  createdAt: string;
   description: string;
   id: string;
   slug: string;
@@ -19,7 +19,7 @@ export const PostCard: React.FC<{ post: Post }> = ({ post }) => {
           <strong className="text-xl font-semibold">{post.title}</strong>
         </header>
         <footer>
-          <span className="text-sm">{post.date}</span>
+          <span className="text-sm">{post.createdAt}</span>
           <span className="text-sm"> • </span>
           <span className="text-sm">1 min de leitura</span>
         </footer>

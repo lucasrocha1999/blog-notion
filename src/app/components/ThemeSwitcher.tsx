@@ -25,7 +25,12 @@ const ThemeSwitcher = () => {
 
   return (
     <div className="flex justify-center items-center dark:bg-[#080808] bg-gray-200 w-6 h-6 rounded-full">
-      <button onClick={() => toggleDarkMode(!darkSide)}>
+      <button
+        name="switch"
+        aria-label="switch"
+        role="button"
+        onClick={() => toggleDarkMode(!darkSide)}
+      >
         {darkSide ? <FaMoon /> : <FaSun />}
       </button>
     </div>

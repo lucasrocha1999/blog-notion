@@ -13,7 +13,7 @@ interface Post {
 export const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   return (
     <Link href={`/posts/${post.slug}`}>
-      <article className="flex flex-col justify-around bg-[#F4F8FD] dark:bg-[#141920] h-80 w-full max-w-[360px] rounded-lg p-3">
+      <section className="flex flex-col justify-around bg-[#E5E7EB] dark:bg-[#141920] h-80 w-full lg:max-w-[360px] rounded-lg p-3">
         <header className="flex flex-col gap-2">
           <span>{post.tags.join(" | ")}</span>
           <strong className="text-xl font-semibold">{post.title}</strong>
@@ -23,7 +23,7 @@ export const PostCard: React.FC<{ post: Post }> = ({ post }) => {
           <span className="text-sm"> • </span>
           <span className="text-sm">1 min de leitura</span>
         </footer>
-      </article>
+      </section>
     </Link>
   );
 };
